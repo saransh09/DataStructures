@@ -1,0 +1,6 @@
+[submodule "C++/external/Catch2"]
+	path = C++/external/Catch2
+	url = https://github.com/catchorg/Catch2.git
+[submodule "C++/external/quill"]
+	path = C++/external/quill
+	url = https://github.com/odygrd/quill.git
