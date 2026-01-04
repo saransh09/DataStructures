@@ -74,3 +74,7 @@ endif()
 # Data Structure Libraries
 # -----------------------------------------------------------------------------
 add_subdirectory(ThreadSafeQueue)
+add_subdirectory(ThreadPool)
+add_subdirectory(OrderBook)
+add_subdirectory(uniquePtr)
+add_subdirectory(Vector)
