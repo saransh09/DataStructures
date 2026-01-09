@@ -1,5 +1,23 @@
 cmake_minimum_required(VERSION 3.20)
+
+# -----------------------------------------------------------------------------
+# Compiler Selection (must be before project())
+# Use Homebrew LLVM on macOS if available
+# -----------------------------------------------------------------------------
+if(NOT DEFINED CMAKE_C_COMPILER AND NOT DEFINED CMAKE_CXX_COMPILER)
+    if(EXISTS /opt/homebrew/opt/llvm/bin/clang)
+        set(CMAKE_C_COMPILER /opt/homebrew/opt/llvm/bin/clang)
+        set(CMAKE_CXX_COMPILER /opt/homebrew/opt/llvm/bin/clang++)
+    elseif(EXISTS /usr/local/opt/llvm/bin/clang)
+        # Intel Mac Homebrew location
+        set(CMAKE_C_COMPILER /usr/local/opt/llvm/bin/clang)
+        set(CMAKE_CXX_COMPILER /usr/local/opt/llvm/bin/clang++)
+    endif()
+endif()
+
 project(DataStructures LANGUAGES CXX)
+
+find_package(TBB REQUIRED)
 
 # -----------------------------------------------------------------------------
 # C++ Standard
@@ -78,3 +96,6 @@ add_subdirectory(ThreadPool)
 add_subdirectory(OrderBook)
 add_subdirectory(uniquePtr)
 add_subdirectory(Vector)
+add_subdirectory(MakeUnique)
+add_subdirectory(HuffmanCompression)
+add_subdirectory(ParallelAccumulate)
