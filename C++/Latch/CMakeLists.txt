@@ -8,7 +8,7 @@ target_link_libraries(LATCH INTERFACE
 
 # Tests
 if(BUILD_TESTS)
-    add_executable(LATCH_tests tests/latch.cpp)
+    add_executable(LATCH_tests tests/latch_test.cpp)
     target_link_libraries(LATCH_tests PRIVATE
         Catch2::Catch2WithMain
         LATCH

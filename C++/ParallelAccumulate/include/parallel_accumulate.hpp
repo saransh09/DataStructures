@@ -6,8 +6,6 @@
 #include <numeric>
 #include <thread>
 #include <vector>
-#include <tbb/parallel_reduce.h>
-#include <tbb/blocked_range.h>
 
 using UL = unsigned long;
 
@@ -22,7 +20,7 @@ using UL = unsigned long;
 
 template <typename Iterator, typename T>
 T parallel_accumulate(Iterator first, Iterator last, T init) {
-  auto length = static_cast<UL>(std::distance(first, last));
+  UL length = std::distance(first, last);
   if (!length)
     return init;
 
@@ -76,7 +74,7 @@ template <typename T> struct alignas(64) Padded {
 
 template <typename Iterator, typename T>
 T parallel_accumulate_padded(Iterator first, Iterator last, T init) {
-  auto length = static_cast<std::size_t>(std::distance(first, last));
+  std::size_t length = std::distance(first, last);
   if (length == 0)
     return init;
 
@@ -108,7 +106,7 @@ T parallel_accumulate_padded(Iterator first, Iterator last, T init) {
 
   T total = init;
   for (auto &r : results)
-    total += r.value;
+    total += r;
   return total;
 }
 
@@ -152,7 +150,7 @@ T parallel_accumulate_pool(Iterator first, Iterator last, T init, Pool &pool) {
 
 template <typename Iterator, typename T>
 T parallel_accumulate_dc(Iterator first, Iterator last, T init) {
-  constexpr std::ptrdiff_t cutoff = 10'000;
+  constexpr std::size_t cutoff = 10'000;
   auto length = std::distance(first, last);
   if (length < cutoff)
     return std::accumulate(first, last, init);
@@ -161,32 +159,18 @@ T parallel_accumulate_dc(Iterator first, Iterator last, T init) {
   std::advance(mid, length / 2);
 
   auto left =
-      std::async(std::launch::async, [first, mid]() {
-        return parallel_accumulate_dc(first, mid, T{});
-      });
+      std::async(std::launch::async, parallel_accumulate_dc(first, mid, T{}));
   T right = parallel_accumulate_dc(mid, last, T{});
   return init + left.get() + right;
 }
 
 /*
- * Variation 4 - Using TBB parallel_reduce
- * This is the proper way to do parallel reduction on macOS with libc++
- * since std::execution policies are not yet supported
+ * Variation 4 - Using parallel STL
 */
 
 
-template<typename Iterator, typename T>
-T parallel_accumulate_std(Iterator first, Iterator last, T init)
-{
-    auto length = std::distance(first, last);
-    if (length == 0) return init;
-    
-    return tbb::parallel_reduce(
-        tbb::blocked_range<Iterator>(first, last),
-        init,
-        [](const tbb::blocked_range<Iterator>& range, T partial) {
-            return std::accumulate(range.begin(), range.end(), partial);
-        },
-        std::plus<T>{}
-    );
-}
+// template<typename Iterator, typename T>
+// T parallel_accumulate_std(Iterator first, Iterator last, T init)
+// {
+//     return std::reduce(std::execution::par, first, last, init);
+// }
